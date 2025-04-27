@@ -46,7 +46,7 @@ func startZmq(zmqIPC string, msgCh chan *string) {
 					continue
 				}
 
-				err = pub.Bind(zmqIPC)
+				err = pub.Bind("ipc://" + zmqIPC)
 				if err != nil {
 					logger.Error("[StartZmq] Bind to Local ZMQ %s Error: %s", zmqIPC, err.Error())
 					pub.Close() // 关闭套接字
