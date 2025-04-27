@@ -3,6 +3,7 @@ package main
 import (
 	zmq "github.com/pebbe/zmq4"
 	"google.golang.org/protobuf/proto"
+	"os"
 	"sort"
 	"syncPrice/config"
 	"syncPrice/protocol/pb"
@@ -48,6 +49,16 @@ func startZmq(zmqIPC string, msgCh chan *string) {
 				err = pub.Bind(zmqIPC)
 				if err != nil {
 					logger.Error("[StartZmq] Bind to Local ZMQ %s Error: %s", zmqIPC, err.Error())
+					pub.Close() // 关闭套接字
+					ctx.Term()  // 释放上下文
+					time.Sleep(time.Second * 1)
+					continue
+				}
+
+				// 修改 IPC 文件的权限为 0666（所有用户可读写）
+				err = os.Chmod(zmqIPC, 0666)
+				if err != nil {
+					logger.Error("[StartZmq] Set %s Permission to 0666 Failed Error: %s", zmqIPC, err.Error())
 					pub.Close() // 关闭套接字
 					ctx.Term()  // 释放上下文
 					time.Sleep(time.Second * 1)
