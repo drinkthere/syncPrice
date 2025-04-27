@@ -1,6 +1,6 @@
 #!/bin/bash
 
-$cpuidx=0
+cpuidx=0
 
 start() {
     echo "Starting the process..."
@@ -27,7 +27,7 @@ restart() {
     start
 }
 
-case "$2" in
+case "$1" in
     start)
         start
         ;;
@@ -38,7 +38,7 @@ case "$2" in
         restart
         ;;
     *)
-        echo "Usage: $0 account {start|stop|restart}"
+        echo "Usage: $0 {start|stop|restart}"
         exit 1
         ;;
 esac
