@@ -38,7 +38,7 @@ func statErrorsInLog(globalConfig *config.Config, globalContext *context.GlobalC
 			count := getErrorCountFromLog(globalConfig.LogPath, lastMinute)
 
 			if count > globalConfig.MaxErrorsPerMinute {
-				msg := "ERROR logs nums over max num, stop placing order."
+				msg := "ERROR logs nums over max num, stop syncing median price."
 				logger.Error("[ErrorWatchdog] %s", msg)
 				globalContext.TelegramBot.Send(tgbotapi.NewMessage(globalConfig.TgChatID, msg))
 			}
