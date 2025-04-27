@@ -1,0 +1,12 @@
+syntax = "proto3";
+option go_package = "protocol/pb";
+
+// 定义 MedianPrice 消息和包含多个 MedianPrice 的消息
+message MedianPrice {
+  string coin = 1; // 对应 Coin 字段
+  double price = 2;   // 对应 Price 字段
+}
+
+message MedianPriceList {
+  repeated MedianPrice prices = 1; // 包含多个 MedianPrice 的数组
+}

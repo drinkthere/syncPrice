@@ -1,0 +1,8 @@
+vendor/
+.idea
+config/*.json
+bin/syncprice
+bin/logs
+logs/
+*.DS_Store 
+*.env
