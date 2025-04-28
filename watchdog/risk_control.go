@@ -78,6 +78,11 @@ func checkPriceUpdateTime(
 
 	initInterval := interval
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				logger.Error("Recovered from panic in price update check: %v", r)
+			}
+		}()
 		for {
 			time.Sleep(initInterval)
 			exchanges := []config.Exchange{config.BinanceExchange, config.OkxExchange, config.BybitExchange}
@@ -90,11 +95,11 @@ func checkPriceUpdateTime(
 					tickerWrapper := globalContext.TickerComposite.GetTickerWrapper(exchange, instType)
 					tickerExpired := false
 					for _, instID := range instIDs {
-						var timeoutThreshold int64 = 30 * 1000 * 1000
+						var timeoutThresholdSec int64 = 50
 						ticker := tickerWrapper.GetTicker(instID)
-						if ticker == nil || ticker.IsExpired(timeoutThreshold) {
-							logger.Error("[RiskControlPriceUpdate] %s %s %s Ticker Did Not Update For %d seconds",
-								exchange, instType, instID, timeoutThreshold)
+						if ticker == nil || ticker.IsExpired(timeoutThresholdSec*1000*1000) {
+							logger.Error("[MedianPrice] %s %s %s Ticker Did Not Update For %d seconds",
+								exchange, instType, instID, timeoutThresholdSec)
 							tickerExpired = true
 						}
 					}
@@ -104,10 +109,16 @@ func checkPriceUpdateTime(
 					}
 				}
 			}
+
+			const maxInterval = 10 * time.Minute
 			if len(expiredWs) > 0 {
 				msg := strings.Join(expiredWs, "&")
-				globalContext.TelegramBot.Send(tgbotapi.NewMessage(globalConfig.TgChatID, msg))
-				initInterval = initInterval * 2
+				msg += " ws ticker update delay"
+				logger.Error("[MedianPrice] " + msg)
+				// globalContext.TelegramBot.Send(tgbotapi.NewMessage(globalConfig.TgChatID, msg))
+				if initInterval < maxInterval {
+					initInterval = initInterval * 2
+				}
 			} else {
 				initInterval = interval
 			}
