@@ -98,8 +98,8 @@ func checkPriceUpdateTime(
 						var timeoutThresholdSec int64 = 50
 						ticker := tickerWrapper.GetTicker(instID)
 						if ticker == nil || ticker.IsExpired(timeoutThresholdSec*1000*1000) {
-							logger.Error("[MedianPrice] %s %s %s Ticker Did Not Update For %d seconds",
-								exchange, instType, instID, timeoutThresholdSec)
+							logger.Error("[MedianPrice] %s %s %s Ticker %+v Did Not Update For %d seconds",
+								exchange, instType, instID, ticker, timeoutThresholdSec)
 							tickerExpired = true
 						}
 					}
@@ -112,8 +112,7 @@ func checkPriceUpdateTime(
 
 			const maxInterval = 10 * time.Minute
 			if len(expiredWs) > 0 {
-				msg := strings.Join(expiredWs, "&")
-				msg += " ws ticker update delay"
+				msg := strings.Join(expiredWs, "&") + " ws ticker update delay"
 				logger.Error("[MedianPrice] " + msg)
 				// globalContext.TelegramBot.Send(tgbotapi.NewMessage(globalConfig.TgChatID, msg))
 				if initInterval < maxInterval {
